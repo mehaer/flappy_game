@@ -1,0 +1,73 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box; /* Ensures padding and borders don't affect width */
+}
+
+html, body {
+  height: 100%; /* Ensure body takes full height */
+}
+
+#game {
+  width: 100vw; /* Full viewport width */
+  height: 100vh; /* Full viewport height */
+  border: none; /* Remove border */
+  position: relative; /* Position relative for absolute elements inside */
+  overflow: hidden; /* Prevent scrollbars */
+}
+
+#question {
+  position: absolute;
+  top: 10px;
+  width: 100%;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+
+#block {
+  width: 50px;
+  height: 100%; /* Full height of the game area */
+  background-color: black;
+  position: absolute; /* Absolute positioning */
+  left: 100%;  /*Start off-screen*/
+  /* left: 800px; */
+  animation: block 3s infinite linear; /* Animation for block */
+}
+
+@keyframes block {
+  0% { left: 100%; } /* Start off screen */
+  100% { left: -50px; } /* Move off screen */
+}
+
+#hole {
+  width: 50px;
+  height: 100px;
+  background-color: white;
+  position: absolute; /* Absolute positioning */
+  left: 100%; /* Start off-screen */
+  animation: holeAnimation 3s infinite linear; /* Animation for hole */
+}
+
+.answer {
+  position: relative;
+  top: 50px; /* Adjust so the answer is visible in the hole */
+  text-align: center;
+  font-size: 20px;
+  color: black;
+}
+
+@keyframes holeAnimation {
+  0% { left: 100%; }
+  100% { left: -50px; }
+}
+
+#character {
+  width: 20px;
+  height: 20px;
+  background-color: red;
+  position: absolute;
+  top: 200px; /* Initial vertical position */
+  border-radius: 50%;
+}
