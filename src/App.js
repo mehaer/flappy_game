@@ -16,14 +16,14 @@ function App() {
     const questions = [
         { question: "What is the male reproductive cell called?", answer: "Sperm" },
         { question: "What is the female reproductive cell called?", answer: "Egg" },
-        { question: "What is the process called when a sperm fertilizes an egg?", answer: "Fertilization" },
+        { question: "What is the main female hormone?", answer: "Estrogen" },
         { question: "What is the term for the period when a female's body is ready for pregnancy?", answer: "Ovulation" },
         { question: "What is the term for sexual intercourse?", answer: "Coitus" },
         { question: "What is the name of the device used to prevent pregnancy?", answer: "Condom" },
         { question: "What is the STI caused by a virus that leads to genital warts?", answer: "HPV" },
-        { question: "What hormone is primarily responsible for male characteristics?", answer: "Testosterone" },
-        { question: "What is the term for the monthly cycle in females?", answer: "Menstruation" },
-        { question: "What is the medical term for the removal of the foreskin?", answer: "Circumcision" },
+        { question: "What is a common birth control pill?", answer: "Plan B" },
+        { question: "What is the term for the monthly cycle in females?", answer: "Period" },
+        { question: "What is the tube that carries sperm?", answer: "Vas deferens" },
         
     ];
 
@@ -147,7 +147,7 @@ function App() {
                 </div>
             ))}
         </div>
-        <div id="character" ref={characterRef} style={{ top: "200px" }}>🍆</div>
+        <div id="character" ref={characterRef} style={{ top: "200px" }}>🤰</div>
         {gameOver && (
             <div className="broken-screen">
                 <div><h1>Game Over!</h1></div>

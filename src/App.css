@@ -63,7 +63,8 @@
 }
 
 #character {
-  font-size: 2rem;
+  margin-left: 40px;
+  font-size: 3rem;
   position:absolute;
 }
 
