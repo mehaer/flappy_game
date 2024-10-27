@@ -14,11 +14,17 @@ function App() {
 
     const gapSpacing = 150;
     const questions = [
-        { question: "What is 2 + 2?", answer: "4" },
-        { question: "Capital of France?", answer: "Paris" },
-        { question: "What is 5 * 3?", answer: "15" },
-        { question: "Opposite of Hot?", answer: "Cold" },
-        { question: "What is 10 / 2?", answer: "5" },
+        { question: "What is the male reproductive cell called?", answer: "Sperm" },
+        { question: "What is the female reproductive cell called?", answer: "Egg" },
+        { question: "What is the process called when a sperm fertilizes an egg?", answer: "Fertilization" },
+        { question: "What is the term for the period when a female's body is ready for pregnancy?", answer: "Ovulation" },
+        { question: "What is the term for sexual intercourse?", answer: "Coitus" },
+        { question: "What is the name of the device used to prevent pregnancy?", answer: "Condom" },
+        { question: "What is the STI caused by a virus that leads to genital warts?", answer: "HPV" },
+        { question: "What hormone is primarily responsible for male characteristics?", answer: "Testosterone" },
+        { question: "What is the term for the monthly cycle in females?", answer: "Menstruation" },
+        { question: "What is the medical term for the removal of the foreskin?", answer: "Circumcision" },
+        
     ];
 
     const initializeGaps = () => {
@@ -123,31 +129,36 @@ function App() {
       initializeGaps();
   };
   
-    return (
-        <div key={key} id="game">
-            <div id="question">{question}</div>
-            <div id="block" ref={blockRef}>
-                {gaps.map((gap, index) => (
-                    <div
-                        key={index}
-                        className={`hole ${gap.passable ? "passable" : "non-passable"}`}
-                        style={{ top: `${gap.top}px` }}
-                    >
-                        <div className="answer">{gap.answer}</div>
-                    </div>
-                ))}
-            </div>
-            <div id="character" ref={characterRef} style={{ top: "200px" }}></div>
-            {gameOver && (
-              <div className="broken-screen">
-                  <div><h1>Game Over!</h1></div>
-                  <div><p>Score: {score}</p></div>
-                  <div><p>Press R to Restart</p></div>
-              </div>
-            )}
-
+  return (
+    <div key={key} id="game">
+        <div className="cloud cloud1"></div>
+        <div className="cloud cloud2"></div>
+        <div className="cloud cloud3"></div>
+        
+        <div id="question">{question}</div>
+        <div id="block" ref={blockRef}>
+            {gaps.map((gap, index) => (
+                <div
+                    key={index}
+                    className={`hole ${gap.passable ? "passable" : "non-passable"}`}
+                    style={{ top: `${gap.top}px` }}
+                >
+                    <div className="answer">{gap.answer}</div>
+                </div>
+            ))}
         </div>
-    );
+        <div id="character" ref={characterRef} style={{ top: "200px" }}>🍆</div>
+        {gameOver && (
+            <div className="broken-screen">
+                <div><h1>Game Over!</h1></div>
+                <div><p>Score: {score}</p></div>
+                <div><p>Press R to Restart</p></div>
+            </div>
+        )}
+    </div>
+);
+
+          
 }
 
 export default App;

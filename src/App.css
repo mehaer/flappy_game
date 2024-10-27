@@ -63,13 +63,8 @@
 }
 
 #character {
-  width: 25px;
-  height: 25px;
-  background-color: red;
-  position: absolute;
-  left: 50px;
-  top: 200px;
-  border-radius: 50%;
+  font-size: 2rem;
+  position:absolute;
 }
 
 /* New styles for screen break effect */
@@ -100,5 +95,54 @@
   100% {
     opacity: 1;
     transform: scale(1.1);
+  }
+}
+#game {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  background-color: lightblue;
+}
+
+
+.cloud {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.8;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.cloud1 {
+  width: 200px;
+  height: 100px;
+  top: 20%;
+  left: 10%;
+  animation: moveClouds 30s linear infinite;
+}
+
+.cloud2 {
+  width: 150px;
+  height: 75px;
+  top: 30%;
+  left: 40%;
+  animation: moveClouds 35s linear infinite;
+}
+
+.cloud3 {
+  width: 180px;
+  height: 90px;
+  top: 10%;
+  left: 70%;
+  animation: moveClouds 40s linear infinite;
+}
+
+@keyframes moveClouds {
+  0% {
+      transform: translateX(-100%);
+  }
+  100% {
+      transform: translateX(100vw);
   }
 }
