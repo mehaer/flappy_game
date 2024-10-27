@@ -106,32 +106,24 @@ function App() {
     }, [jumping, gaps, gameOver]); // Remove counter from dependencies
 
     const jump = () => {
-        if (jumping === 0) {
-            setJumping(1); // Set jumping state to 1
-            let jumpCount = 0;
+      if (jumping === 0) {
+          setJumping(1);
+          let jumpCount = 0;
 
-            const jumpInterval = setInterval(() => {
-                const character = characterRef.current;
-                const characterTop = parseInt(window.getComputedStyle(character).getPropertyValue("top"));
-                
-                // Ascend
-                if (jumpCount < 15) {
-                    character.style.top = (characterTop - 5) + "px"; // Move up
-                }
-                
-                // Descend
-                if (jumpCount >= 15 && jumpCount < 30) {
-                    character.style.top = (characterTop + 5) + "px"; // Move down
-                }
-
-                jumpCount++;
-                if (jumpCount >= 30) {
-                    clearInterval(jumpInterval);
-                    setJumping(0); // Reset jumping state
-                }
-            }, 20); // Adjust interval timing for smoother jump
-        }
-    };
+          const jumpInterval = setInterval(() => {
+              const character = characterRef.current;
+              const characterTop = parseInt(window.getComputedStyle(character).getPropertyValue("top"));
+              if (characterTop > 6 && jumpCount < 15) {
+                  character.style.top = (characterTop - 5) + "px";
+              }
+              if (jumpCount > 20) {
+                  clearInterval(jumpInterval);
+                  setJumping(0);
+              }
+              jumpCount++;
+          }, 10);
+      }
+  };
 
     const restartGame = () => {
         setCounter(0);
@@ -168,6 +160,7 @@ function App() {
             {gameOver && (
                 <div className="broken-screen">
                     <h1>Game Over!</h1>
+                    <br/><br/><br/>
                     <p>Press R to Restart</p>
                 </div>
             )}
