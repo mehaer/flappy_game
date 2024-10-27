@@ -8,6 +8,7 @@ function App() {
     const [counter, setCounter] = useState(0);
     const [question, setQuestion] = useState("");
     const [gaps, setGaps] = useState([]);
+    const gapSpacing = 150;
 
     // Array of question-answer pairs
     const questions = [
@@ -27,18 +28,24 @@ function App() {
             const { question, answer } = questions[randomIndex];
             setQuestion(question);
 
-            // Create one passable gap and one non-passable gap
+            // Choose an incorrect answer for the grey gap
+            let incorrectAnswer;
+            do {
+                incorrectAnswer = questions[Math.floor(Math.random() * questions.length)].answer;
+            } while (incorrectAnswer === answer);
+
+            const minGap = 50;      // Minimum distance between passable and non-passable gap
+             // Height of the passable gap
+            const windowHeight = window.innerHeight - 300;
+            
+            // Determine position of passable (white) gap
+            const firstGapTop = Math.floor(Math.random() * (windowHeight - gapSpacing - minGap));
+            // Ensure the second (non-passable) gap is spaced below the passable gap by minGap
+            const secondGapTop = firstGapTop + gapSpacing + minGap;
+
             const newGaps = [
-                {
-                    top: Math.floor(Math.random() * (window.innerHeight - 300)),
-                    answer: answer,
-                    passable: true
-                },
-                {
-                    top: Math.floor(Math.random() * (window.innerHeight - 300)),
-                    answer: "", 
-                    passable: false 
-                }
+                { top: firstGapTop, answer: answer, passable: true },
+                { top: secondGapTop, answer: incorrectAnswer, passable: false }
             ];
             setGaps(newGaps);
             setCounter((prevCounter) => prevCounter + 1);
@@ -55,11 +62,11 @@ function App() {
             const blockLeft = parseInt(window.getComputedStyle(block).getPropertyValue("left"));
             const characterHeight = 20;
 
-            // Check if block is near enough to potentially collide
+            // Check collision with gaps
             if (blockLeft < 60 && blockLeft > -50) {
                 const isColliding = gaps.every(gap => {
                     const holeTop = gap.top;
-                    const holeHeight = 150;
+                    const holeHeight = gapSpacing;
                     const isInGap = characterTop > holeTop && characterTop < holeTop + holeHeight;
                     return !(gap.passable && isInGap);
                 });
@@ -117,7 +124,7 @@ function App() {
                         className={`hole ${gap.passable ? "passable" : "non-passable"}`}
                         style={{ top: `${gap.top}px` }}
                     >
-                        {gap.passable && <div className="answer">{gap.answer}</div>}
+                        <div className="answer">{gap.answer}</div>
                     </div>
                 ))}
             </div>
