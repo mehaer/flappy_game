@@ -3,79 +3,89 @@ import './App.css';
 
 function App() {
     const characterRef = useRef(null);
-    const holeRef = useRef(null);
     const blockRef = useRef(null);
     const [jumping, setJumping] = useState(0);
     const [counter, setCounter] = useState(0);
     const [question, setQuestion] = useState("");
-    const [answer, setAnswer] = useState("");
+    const [gaps, setGaps] = useState([]);
 
+    // Array of question-answer pairs
     const questions = [
-      { question: "What is 2 + 2?", answer: "4" },
-      { question: "Capital of France?", answer: "Paris" },
-      { question: "What is 5 * 3?", answer: "15" },
-      { question: "Opposite of Hot?", answer: "Cold" },
-      { question: "What is 10 / 2?", answer: "5" },
-  ];
+        { question: "What is 2 + 2?", answer: "4" },
+        { question: "Capital of France?", answer: "Paris" },
+        { question: "What is 5 * 3?", answer: "15" },
+        { question: "Opposite of Hot?", answer: "Cold" },
+        { question: "What is 10 / 2?", answer: "5" },
+    ];
 
     useEffect(() => {
-        const hole = holeRef.current;
         const character = characterRef.current;
         const block = blockRef.current;
 
-        const handleHoleAnimation = () => {
+        const handleBlockAnimation = () => {
             const randomIndex = Math.floor(Math.random() * questions.length);
             const { question, answer } = questions[randomIndex];
+            setQuestion(question);
 
-            setQuestion(question); // Display question on the screen
-            setAnswer(answer);
-
-            const random = Math.random() * (window.innerHeight / 2 - 200) + (window.innerHeight / 2);
-            hole.style.top = random + "px"; // Random height for the hole
+            // Create one passable gap and one non-passable gap
+            const newGaps = [
+                {
+                    top: Math.floor(Math.random() * (window.innerHeight - 300)),
+                    answer: answer,
+                    passable: true
+                },
+                {
+                    top: Math.floor(Math.random() * (window.innerHeight - 300)),
+                    answer: "", 
+                    passable: false 
+                }
+            ];
+            setGaps(newGaps);
             setCounter((prevCounter) => prevCounter + 1);
         };
 
-        hole.addEventListener('animationiteration', handleHoleAnimation);
-        
+        block.addEventListener('animationiteration', handleBlockAnimation);
+
         const interval = setInterval(() => {
             const characterTop = parseInt(window.getComputedStyle(character).getPropertyValue("top"));
             if (jumping === 0) {
-                character.style.top = (characterTop + 3) + "px"; // Gravity effect
+                character.style.top = (characterTop + 3) + "px";
             }
 
             const blockLeft = parseInt(window.getComputedStyle(block).getPropertyValue("left"));
-            const holeTop = parseInt(window.getComputedStyle(hole).getPropertyValue("top"));
-            const holeHeight = 150; // Height of the hole
-            //const cTop = -(window.innerHeight - characterTop); // Adjust for full screen
+            const characterHeight = 20;
 
-            // Check for game over conditions
-            const isInHole =
-                blockLeft < 20 && blockLeft > -50 &&
-                (characterTop > holeTop && characterTop < holeTop + holeHeight);
+            // Check if block is near enough to potentially collide
+            if (blockLeft < 60 && blockLeft > -50) {
+                const isColliding = gaps.every(gap => {
+                    const holeTop = gap.top;
+                    const holeHeight = 150;
+                    const isInGap = characterTop > holeTop && characterTop < holeTop + holeHeight;
+                    return !(gap.passable && isInGap);
+                });
 
-            const isCollidingWithBlock =
-                characterTop > window.innerHeight - 20 || 
-                (blockLeft < 20 && blockLeft > -50 && !isInHole);
-
-            if (isCollidingWithBlock) {
-                alert("Game over. Score: " + (counter - 1));
-                character.style.top = "200px"; // Reset character position to the center
-                setCounter(0);
+                if (isColliding) {
+                    alert("Game over. Score: " + (counter - 1));
+                    character.style.top = "200px";
+                    setCounter(0);
+                }
             }
         }, 10);
-        const handleKeyDown = (event) => {
-          if (event.code === 'Space') {
-              jump();
-          }
-      };
 
-      window.addEventListener('keydown', handleKeyDown);
+        const handleKeyDown = (event) => {
+            if (event.code === 'Space') {
+                jump();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
         return () => {
-            hole.removeEventListener('animationiteration', handleHoleAnimation);
+            block.removeEventListener('animationiteration', handleBlockAnimation);
             clearInterval(interval);
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [jumping, counter]);
+    }, [jumping, counter, gaps]);
 
     const jump = () => {
         if (jumping === 0) {
@@ -86,11 +96,11 @@ function App() {
                 const character = characterRef.current;
                 const characterTop = parseInt(window.getComputedStyle(character).getPropertyValue("top"));
                 if (characterTop > 6 && jumpCount < 15) {
-                    character.style.top = (characterTop - 5) + "px"; // Jump up
+                    character.style.top = (characterTop - 5) + "px";
                 }
                 if (jumpCount > 20) {
                     clearInterval(jumpInterval);
-                    setJumping(0); // Reset jumping
+                    setJumping(0);
                 }
                 jumpCount++;
             }, 10);
@@ -98,11 +108,18 @@ function App() {
     };
 
     return (
-        <div id="game" onClick={jump}>
+        <div id="game">
             <div id="question">{question}</div>
-            <div id="block" ref={blockRef}></div>
-            <div id="hole" ref={holeRef}> 
-              <div className="answer">{answer}</div>
+            <div id="block" ref={blockRef}>
+                {gaps.map((gap, index) => (
+                    <div
+                        key={index}
+                        className={`hole ${gap.passable ? "passable" : "non-passable"}`}
+                        style={{ top: `${gap.top}px` }}
+                    >
+                        {gap.passable && <div className="answer">{gap.answer}</div>}
+                    </div>
+                ))}
             </div>
             <div id="character" ref={characterRef} style={{ top: "200px" }}></div>
         </div>
