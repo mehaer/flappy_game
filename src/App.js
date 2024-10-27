@@ -9,6 +9,9 @@ function App() {
     const [question, setQuestion] = useState("");
     const [gaps, setGaps] = useState([]);
     const gapSpacing = 150;
+    const [gameOver, setGameOver] = useState(false); // Track game over state
+    const [intervalId, setIntervalId] = useState(null); // Store interval ID
+    const [key, setKey] = useState(0); // Track the component key for reset
 
     // Array of question-answer pairs
     const questions = [
@@ -19,48 +22,51 @@ function App() {
         { question: "What is 10 / 2?", answer: "5" },
     ];
 
+    // Function to initialize gaps
+    const initializeGaps = () => {
+        const randomIndex = Math.floor(Math.random() * questions.length);
+        const { question, answer } = questions[randomIndex];
+        setQuestion(question);
+
+        // Choose an incorrect answer for the grey gap
+        let incorrectAnswer;
+        do {
+            incorrectAnswer = questions[Math.floor(Math.random() * questions.length)].answer;
+        } while (incorrectAnswer === answer);
+
+        const minGap = 50; // Minimum distance between passable and non-passable gap
+        const windowHeight = window.innerHeight - 300; // Adjusting height
+        const firstGapTop = Math.floor(Math.random() * (windowHeight - gapSpacing - minGap));
+        const secondGapTop = firstGapTop + gapSpacing + minGap;
+
+        const newGaps = [
+            { top: firstGapTop, answer: answer, passable: true },
+            { top: secondGapTop, answer: incorrectAnswer, passable: false }
+        ];
+        setGaps(newGaps);
+        setCounter((prevCounter) => prevCounter + 1); // Increase counter
+    };
+
     useEffect(() => {
         const character = characterRef.current;
         const block = blockRef.current;
 
         const handleBlockAnimation = () => {
-            const randomIndex = Math.floor(Math.random() * questions.length);
-            const { question, answer } = questions[randomIndex];
-            setQuestion(question);
-
-            // Choose an incorrect answer for the grey gap
-            let incorrectAnswer;
-            do {
-                incorrectAnswer = questions[Math.floor(Math.random() * questions.length)].answer;
-            } while (incorrectAnswer === answer);
-
-            const minGap = 50;      // Minimum distance between passable and non-passable gap
-             // Height of the passable gap
-            const windowHeight = window.innerHeight - 300;
-            
-            // Determine position of passable (white) gap
-            const firstGapTop = Math.floor(Math.random() * (windowHeight - gapSpacing - minGap));
-            // Ensure the second (non-passable) gap is spaced below the passable gap by minGap
-            const secondGapTop = firstGapTop + gapSpacing + minGap;
-
-            const newGaps = [
-                { top: firstGapTop, answer: answer, passable: true },
-                { top: secondGapTop, answer: incorrectAnswer, passable: false }
-            ];
-            setGaps(newGaps);
-            setCounter((prevCounter) => prevCounter + 1);
+            // Reset gaps and increase counter
+            initializeGaps();
         };
 
         block.addEventListener('animationiteration', handleBlockAnimation);
 
-        const interval = setInterval(() => {
+        const newIntervalId = setInterval(() => {
+            if (gameOver) return; // Stop the interval if the game is over
+
             const characterTop = parseInt(window.getComputedStyle(character).getPropertyValue("top"));
             if (jumping === 0) {
-                character.style.top = (characterTop + 3) + "px";
+                character.style.top = (characterTop + 3) + "px"; // Gravity effect
             }
 
             const blockLeft = parseInt(window.getComputedStyle(block).getPropertyValue("left"));
-            const characterHeight = 20;
 
             // Check collision with gaps
             if (blockLeft < 60 && blockLeft > -50) {
@@ -72,16 +78,21 @@ function App() {
                 });
 
                 if (isColliding) {
-                    alert("Game over. Score: " + (counter - 1));
-                    character.style.top = "200px";
-                    setCounter(0);
+                    setGameOver(true); // Set game over state
+                    character.style.top = "200px"; // Reset character position
+                    clearInterval(newIntervalId); // Stop the interval when the game is over
                 }
             }
         }, 10);
 
+        setIntervalId(newIntervalId); // Store the interval ID
+
         const handleKeyDown = (event) => {
-            if (event.code === 'Space') {
+            if (event.code === 'Space' && !gameOver) { // Allow jump only if not game over
                 jump();
+            }
+            if (event.code === 'KeyR' && gameOver) { // Restart the game if 'R' is pressed
+                restartGame();
             }
         };
 
@@ -89,33 +100,58 @@ function App() {
 
         return () => {
             block.removeEventListener('animationiteration', handleBlockAnimation);
-            clearInterval(interval);
+            clearInterval(newIntervalId); // Clear the interval on component unmount
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [jumping, counter, gaps]);
+    }, [jumping, gaps, gameOver]); // Remove counter from dependencies
 
     const jump = () => {
         if (jumping === 0) {
-            setJumping(1);
+            setJumping(1); // Set jumping state to 1
             let jumpCount = 0;
 
             const jumpInterval = setInterval(() => {
                 const character = characterRef.current;
                 const characterTop = parseInt(window.getComputedStyle(character).getPropertyValue("top"));
-                if (characterTop > 6 && jumpCount < 15) {
-                    character.style.top = (characterTop - 5) + "px";
+                
+                // Ascend
+                if (jumpCount < 15) {
+                    character.style.top = (characterTop - 5) + "px"; // Move up
                 }
-                if (jumpCount > 20) {
-                    clearInterval(jumpInterval);
-                    setJumping(0);
+                
+                // Descend
+                if (jumpCount >= 15 && jumpCount < 30) {
+                    character.style.top = (characterTop + 5) + "px"; // Move down
                 }
+
                 jumpCount++;
-            }, 10);
+                if (jumpCount >= 30) {
+                    clearInterval(jumpInterval);
+                    setJumping(0); // Reset jumping state
+                }
+            }, 20); // Adjust interval timing for smoother jump
         }
     };
 
+    const restartGame = () => {
+        setCounter(0);
+        setGaps([]);
+        setGameOver(false);
+        setQuestion("");
+        setJumping(0);
+        
+        // Clear the previous interval before creating a new one
+        clearInterval(intervalId); 
+
+        // Increment the key to force re-render
+        setKey(prevKey => prevKey + 1);
+
+        // Re-initialize gaps for a fresh start
+        initializeGaps();
+    };
+
     return (
-        <div id="game">
+        <div key={key} id="game">
             <div id="question">{question}</div>
             <div id="block" ref={blockRef}>
                 {gaps.map((gap, index) => (
@@ -129,6 +165,12 @@ function App() {
                 ))}
             </div>
             <div id="character" ref={characterRef} style={{ top: "200px" }}></div>
+            {gameOver && (
+                <div className="broken-screen">
+                    <h1>Game Over!</h1>
+                    <p>Press R to Restart</p>
+                </div>
+            )}
         </div>
     );
 }
